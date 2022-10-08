@@ -67,7 +67,7 @@ dataset_name = ''
 path_img = os.path.join(ROOT, '')
 WORK_DIR = os.path.join(ROOT, '')
 
-fold = int(options.fold)
+fold = 5
 
 INFER = ''  # TRN or EMB or TST
 HFLIP = 'F'
