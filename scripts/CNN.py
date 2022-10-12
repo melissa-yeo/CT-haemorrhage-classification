@@ -247,17 +247,23 @@ model, optimizer = amp.initialize(model, optimizer, opt_level="O1")
 
 model = torch.nn.DataParallel(model, device_ids=list(range(n_gpu)))
 
+val_loss_min = np.Inf
+
 for epoch in range(n_epochs):
     logger.info('Epoch {}/{}'.format(epoch, n_epochs - 1))
     logger.info('-' * 10)
+    
     if INFER == 'TRN':
         for param in model.parameters():
             param.requires_grad = True
+            
+        # Train the model #
         model.train()
         tr_loss = 0
         for step, batch in enumerate(trnloader):
             if step % 1000 == 0:
-                logger.info('Train step {} of {}'.format(step, len(trnloader)))
+                print('Train step {} of {}'.format(step, len(trnloader)))
+            optimizer.zero_grad()
             inputs = batch["image"]
             labels = batch["labels"]
             inputs = inputs.to(device, dtype=torch.float)
@@ -268,14 +274,33 @@ for epoch in range(n_epochs):
                 scaled_loss.backward()
             tr_loss += loss.item()
             optimizer.step()
-            optimizer.zero_grad()
             del inputs, labels, outputs
-        epoch_loss = tr_loss / len(trnloader)
-        logger.info('Training Loss: {:.4f}'.format(epoch_loss))
-        for param in model.parameters():
-            param.requires_grad = False
-        output_model_file = os.path.join(WORK_DIR, 'weights/model_epoch{}_fold{}.bin'.format(epoch, fold))
-        torch.save(model.state_dict(), output_model_file)
+            
+        # Validate the model #
+        model.eval()
+        val_loss = 0
+        for step, batch in enumerate(valloader):
+            if step % 1000 == 0:
+                print('Train step {} of {}'.format(step, len(trnloader)))
+            inputs = batch["image"]
+            labels = batch["labels"]
+            inputs = inputs.to(device, dtype=torch.float)
+            labels = labels.to(device, dtype=torch.float)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            val_loss += loss.item()
+            del inputs, labels, outputs
+         
+        epoch_tr_loss = tr_loss / len(trnloader)
+        epoch_val_loss = val_loss / len(valloader)
+        print('Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(epoch+1, epoch_tr_loss, epoch_val_loss))
+        
+        if epoch_val_loss <= val_loss_min:
+            for param in model.parameters():
+                param.requires_grad = False
+            output_model_file = os.path.join(WORK_DIR, 'weights/model_epoch{}_fold{}.bin'.format(epoch, fold))
+            torch.save(model.state_dict(), output_model_file)
+            val_loss_min = epoch_val_loss
 
     if INFER == 'EMB' or INFER == 'TST':
         del model
