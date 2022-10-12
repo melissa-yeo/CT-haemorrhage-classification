@@ -63,7 +63,7 @@ batch_size = int(32)
 ROOT = ''
 path_data = os.path.join(ROOT, 'data')
 testcsvgz_name = ''
-dataset_name = ''
+dataset_name = 'CQ500'
 path_img = os.path.join(ROOT, '')
 WORK_DIR = os.path.join(ROOT, '')
 
@@ -257,7 +257,7 @@ for epoch in range(n_epochs):
         for param in model.parameters():
             param.requires_grad = True
             
-        # Train the model #
+        # Train CNN #
         model.train()
         tr_loss = 0
         for step, batch in enumerate(trnloader):
@@ -276,7 +276,7 @@ for epoch in range(n_epochs):
             optimizer.step()
             del inputs, labels, outputs
             
-        # Validate the model #
+        # Validate CNN # 
         model.eval()
         val_loss = 0
         for step, batch in enumerate(valloader):
@@ -302,7 +302,9 @@ for epoch in range(n_epochs):
             torch.save(model.state_dict(), output_model_file)
             val_loss_min = epoch_val_loss
 
-    if INFER == 'EMB' or INFER == 'TST':
+            
+    if INFER == 'EMB' or INFER == 'TST' or INFER == 'TST_NOEMB':
+        # Load trained CNN # 
         del model
         # model = torch.hub.load('rwightman/gen-efficientnet-pytorch', 'efficientnet_b0', pretrained=True)
         model = torch.load('checkpoints/resnext101_32x8d_wsl_checkpoint.pth')
@@ -319,6 +321,7 @@ for epoch in range(n_epochs):
         logger.info(model.parameters())
 
     if INFER == 'EMB':
+        # For LSTM training #
         logger.info('Output embeddings epoch {}'.format(epoch))
         logger.info('Train shape {} {}'.format(*trndf.shape))
         logger.info('Valid shape {} {}'.format(*valdf.shape))
@@ -358,6 +361,7 @@ for epoch in range(n_epochs):
             gc.collect()
 
     if INFER == 'TST':
+        # For LSTM testing #
         logger.info('Output embeddings epoch {}'.format(epoch))
         logger.info('Test  shape {} {}'.format(*test.shape))
         tstdataset = IntracranialDataset(test, path=dir_test_img, transform=transform_test, labels=False)
@@ -388,3 +392,44 @@ for epoch in range(n_epochs):
                                  'loader{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, dataset_name, SIZE,
                                                                            fold, epoch)), loader)
             gc.collect()
+    
+    
+    if INFER == 'TST_NOEMB':
+            # For CNN (no LSTM) testing #
+            logger.info('Testing with epoch {}'.format(epoch))
+            logger.info('Test  shape {} {}'.format(*test.shape))
+            tstdataset = IntracranialDataset(test, path=dir_test_img, transform=transform_test, labels=False, imglist=True)
+            tstloader = DataLoader(tstdataset, batch_size=batch_size*4, shuffle=False, num_workers=num_workers)
+            # valdataset = IntracranialDataset(valdf, path=dir_train_img, transform=transform_test, labels=False)
+            # valloader = DataLoader(valdataset, batch_size=batch_size * 4, shuffle=False, num_workers=num_workers)
+
+            DATASETS = ['tst']
+            LOADERS = [tstloader]
+            for typ, loader in zip(DATASETS, LOADERS):
+                valls = []
+                subidxls = []
+                slcidxls = []
+                for step, batch in enumerate(loader):
+                    if step%1000==0:
+                        logger.info('Test {} step {} of {}'.format(typ, step, len(loader)))
+                    inputs = batch["image"].to(device, dtype=torch.float)
+                    logits = model(inputs)
+                    logits = logits.view(-1, n_classes)
+                    valls.append(torch.sigmoid(logits).detach().cpu().numpy())
+                    subidxls.append(batch["sub_idx"].detach().numpy())
+                    slcidxls.append(batch["slc_idx"].detach().numpy())
+                valls = np.concatenate(valls, 0)
+                subidxls = np.concatenate(subidxls, 0)
+                slcidxls = np.concatenate(slcidxls, 0)
+
+            try:
+                logger.info('valls  shape: {}'.format(valls.shape))
+                logger.info('subidxls  shape: {}'.format(subidxls.shape))
+                logger.info('slcidxls  shape: {}'.format(slcidxls.shape))
+            except:
+                logger.info('Could not print shape sizes :(')
+
+            imgls = [f'CT-{i}_CT{j:06d}' for i,j in zip(subidxls, slcidxls)]
+            logger.info('Write out prediction to preds folder')
+            ytstout = makeSub(valls, imgls)
+            ytstout.to_csv('preds/{}CNN_{}_epoch{}.csv.gz'.format(dataset_name, WORK_DIR.split('/')[-1], epoch), index=False, compression='gzip')
