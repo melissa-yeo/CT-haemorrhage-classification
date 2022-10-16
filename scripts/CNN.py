@@ -104,7 +104,7 @@ def autocrop(image, threshold=0):
     rows = np.where(np.max(flatImage, 0) > threshold)[0]
     cols = np.where(np.max(flatImage, 1) > threshold)[0]
     image = image[cols[0]: cols[-1] + 1, rows[0]: rows[-1] + 1]
-    # logger.info(image.shape)
+    # print(image.shape)
     sqside = max(image.shape)
     imageout = np.zeros((sqside, sqside, 3), dtype='uint8')
     imageout[:image.shape[0], :image.shape[1], :] = image.copy()
@@ -250,8 +250,8 @@ model = torch.nn.DataParallel(model, device_ids=list(range(n_gpu)))
 val_loss_min = np.Inf
 
 for epoch in range(n_epochs):
-    logger.info('Epoch {}/{}'.format(epoch, n_epochs - 1))
-    logger.info('-' * 10)
+    print('Epoch {}/{}'.format(epoch, n_epochs - 1))
+    print('-' * 10)
     
     if INFER == 'TRN':
         for param in model.parameters():
@@ -318,14 +318,14 @@ for epoch in range(n_epochs):
         model.load_state_dict(torch.load(input_model_file))
         model = model.to(device)
         model.eval()
-        logger.info(model.parameters())
+        print(model.parameters())
 
     if INFER == 'EMB':
         # For LSTM training #
-        logger.info('Output embeddings epoch {}'.format(epoch))
-        logger.info('Train shape {} {}'.format(*trndf.shape))
-        logger.info('Valid shape {} {}'.format(*valdf.shape))
-        logger.info('Test  shape {} {}'.format(*test.shape))
+        print('Output embeddings epoch {}'.format(epoch))
+        print('Train shape {} {}'.format(*trndf.shape))
+        print('Valid shape {} {}'.format(*valdf.shape))
+        print('Test  shape {} {}'.format(*test.shape))
         trndataset = IntracranialDataset(trndf, path=dir_train_img, transform=transform_test, labels=False)
         valdataset = IntracranialDataset(valdf, path=dir_train_img, transform=transform_test, labels=False)
         tstdataset = IntracranialDataset(test, path=dir_test_img, transform=transform_test, labels=False)
@@ -343,15 +343,15 @@ for epoch in range(n_epochs):
             ls = []
             for step, batch in enumerate(loader):
                 if step % 1000 == 0:
-                    logger.info('Embedding {} step {} of {}'.format(typ, step, len(loader)))
+                    print('Embedding {} step {} of {}'.format(typ, step, len(loader)))
                 inputs = batch["image"]
                 inputs = inputs.to(device, dtype=torch.float)
                 out = model(inputs)
                 ls.append(out.detach().cpu().numpy())
             outemb = np.concatenate(ls, 0).astype(np.float32)
-            logger.info('Write embeddings : shape {} {}'.format(*outemb.shape))
+            print('Write embeddings : shape {} {}'.format(*outemb.shape))
             fembname = 'emb{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, IMG_SIZE, fold, epoch)
-            logger.info('Embedding file name : {}'.format(fembname))
+            print('Embedding file name : {}'.format(fembname))
             np.savez_compressed(
                 os.path.join(WORK_DIR, 'emb{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, IMG_SIZE, fold, epoch)),
                 outemb)
@@ -362,8 +362,8 @@ for epoch in range(n_epochs):
 
     if INFER == 'TST':
         # For LSTM testing #
-        logger.info('Output embeddings epoch {}'.format(epoch))
-        logger.info('Test  shape {} {}'.format(*test.shape))
+        print('Output embeddings epoch {}'.format(epoch))
+        print('Test  shape {} {}'.format(*test.shape))
         tstdataset = IntracranialDataset(test, path=dir_test_img, transform=transform_test, labels=False)
         tstloader = DataLoader(tstdataset, batch_size=batch_size * 4, shuffle=False, num_workers=num_workers)
 
@@ -376,15 +376,15 @@ for epoch in range(n_epochs):
             ls = []
             for step, batch in enumerate(loader):
                 if step % 1000 == 0:
-                    logger.info('Embedding {} step {} of {}'.format(typ, step, len(loader)))
+                    print('Embedding {} step {} of {}'.format(typ, step, len(loader)))
                 inputs = batch["image"]
                 inputs = inputs.to(device, dtype=torch.float)
                 out = model(inputs)
                 ls.append(out.detach().cpu().numpy())
             outemb = np.concatenate(ls, 0).astype(np.float32)
-            logger.info('Write embeddings : shape {} {}'.format(*outemb.shape))
+            print('Write embeddings : shape {} {}'.format(*outemb.shape))
             fembname = 'emb{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, dataset_name, IMG_SIZE, fold, epoch)
-            logger.info('Embedding file name : {}'.format(fembname))
+            print('Embedding file name : {}'.format(fembname))
             np.savez_compressed(os.path.join(WORK_DIR, 'emb{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ,
                                                                                               dataset_name, IMG_SIZE, fold,
                                                                                               epoch)), outemb)
@@ -396,8 +396,8 @@ for epoch in range(n_epochs):
     
     if INFER == 'TST_NOEMB':
             # For CNN (no LSTM) testing #
-            logger.info('Testing with epoch {}'.format(epoch))
-            logger.info('Test  shape {} {}'.format(*test.shape))
+            print('Testing with epoch {}'.format(epoch))
+            print('Test  shape {} {}'.format(*test.shape))
             tstdataset = IntracranialDataset(test, path=dir_test_img, transform=transform_test, labels=False, imglist=True)
             tstloader = DataLoader(tstdataset, batch_size=batch_size*4, shuffle=False, num_workers=num_workers)
             # valdataset = IntracranialDataset(valdf, path=dir_train_img, transform=transform_test, labels=False)
@@ -411,7 +411,7 @@ for epoch in range(n_epochs):
                 slcidxls = []
                 for step, batch in enumerate(loader):
                     if step%1000==0:
-                        logger.info('Test {} step {} of {}'.format(typ, step, len(loader)))
+                        print('Test {} step {} of {}'.format(typ, step, len(loader)))
                     inputs = batch["image"].to(device, dtype=torch.float)
                     logits = model(inputs)
                     logits = logits.view(-1, n_classes)
@@ -423,13 +423,13 @@ for epoch in range(n_epochs):
                 slcidxls = np.concatenate(slcidxls, 0)
 
             try:
-                logger.info('valls  shape: {}'.format(valls.shape))
-                logger.info('subidxls  shape: {}'.format(subidxls.shape))
-                logger.info('slcidxls  shape: {}'.format(slcidxls.shape))
+                print('valls  shape: {}'.format(valls.shape))
+                print('subidxls  shape: {}'.format(subidxls.shape))
+                print('slcidxls  shape: {}'.format(slcidxls.shape))
             except:
-                logger.info('Could not print shape sizes :(')
+                print('Could not print shape sizes :(')
 
             imgls = [f'CT-{i}_CT{j:06d}' for i,j in zip(subidxls, slcidxls)]
-            logger.info('Write out prediction to preds folder')
+            print('Write out prediction to preds folder')
             ytstout = makeSub(valls, imgls)
             ytstout.to_csv('preds/{}CNN_{}_epoch{}.csv.gz'.format(dataset_name, WORK_DIR.split('/')[-1], epoch), index=False, compression='gzip')
