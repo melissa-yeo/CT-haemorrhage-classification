@@ -133,7 +133,7 @@ class IntracranialDataset(Dataset):
                 img = autocrop(img, threshold=0)
             except:
                 1
-        img = cv2.resize(img, (SIZE, SIZE))
+        img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
         if self.transform:
             augmented = self.transform(image=img)
             img = augmented['image']
@@ -350,13 +350,13 @@ for epoch in range(n_epochs):
                 ls.append(out.detach().cpu().numpy())
             outemb = np.concatenate(ls, 0).astype(np.float32)
             logger.info('Write embeddings : shape {} {}'.format(*outemb.shape))
-            fembname = 'emb{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, SIZE, fold, epoch)
+            fembname = 'emb{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, IMG_SIZE, fold, epoch)
             logger.info('Embedding file name : {}'.format(fembname))
             np.savez_compressed(
-                os.path.join(WORK_DIR, 'emb{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, SIZE, fold, epoch)),
+                os.path.join(WORK_DIR, 'emb{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, IMG_SIZE, fold, epoch)),
                 outemb)
             dumpobj(os.path.join(WORK_DIR,
-                                 'loader{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, SIZE, fold, epoch)),
+                                 'loader{}_{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, IMG_SIZE, fold, epoch)),
                     loader)
             gc.collect()
 
@@ -383,13 +383,13 @@ for epoch in range(n_epochs):
                 ls.append(out.detach().cpu().numpy())
             outemb = np.concatenate(ls, 0).astype(np.float32)
             logger.info('Write embeddings : shape {} {}'.format(*outemb.shape))
-            fembname = 'emb{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, dataset_name, SIZE, fold, epoch)
+            fembname = 'emb{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, dataset_name, IMG_SIZE, fold, epoch)
             logger.info('Embedding file name : {}'.format(fembname))
             np.savez_compressed(os.path.join(WORK_DIR, 'emb{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ,
-                                                                                              dataset_name, SIZE, fold,
+                                                                                              dataset_name, IMG_SIZE, fold,
                                                                                               epoch)), outemb)
             dumpobj(os.path.join(WORK_DIR,
-                                 'loader{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, dataset_name, SIZE,
+                                 'loader{}_{}{}_size{}_fold{}_ep{}'.format(HFLIP + TRANSPOSE, typ, dataset_name, IMG_SIZE,
                                                                            fold, epoch)), loader)
             gc.collect()
     
