@@ -1,4 +1,4 @@
-name: pytorchtensorflow
+name: pytorch
 channels:
   - pytorch
   - plotly
