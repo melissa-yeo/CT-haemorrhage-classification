@@ -23,8 +23,8 @@ The CNN-RNN model is based on the implementation by [darraghdog](https://github.
 ### Hardware
 This research was undertaken using the LIEF HPC-GPGPU Facility hosted at the University of Melbourne. \
 This Facility was established with the assistance of LIEF Grant LE170100200. \
-Two Intel Xeon E5-2650 CPUs (24 cores)\
-Four NVIDIA P100 GPUs 
+Two Intel Xeon E5-2650 CPUs (24 cores).\
+Four NVIDIA P100 GPUs.
 
 ### Software
 Refer to envi.yml\
