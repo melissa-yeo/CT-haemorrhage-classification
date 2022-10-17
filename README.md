@@ -6,19 +6,19 @@ The CNN-RNN model is based on the implementation by [darraghdog](https://github.
 ### Files
 1. Preparing training dataset (Kaggle):
      - raw dataset available at: https://www.kaggle.com/competitions/rsna-intracranial-hemorrhage-detection/data
-     - split_kaggle_dataset.py
-     - preprocess_kaggle_dataset.py 
+     - run split_kaggle_dataset.py
+     - run preprocess_kaggle_dataset.py 
 2. Preparing test dataset (CQ500):
      - raw dataset available at: http://headctstudy.qure.ai/dataset
-     - preprocess_CQ500_dataset.py
-     - optional: reads_interrater_analysis.py to evaluate ratings
+     - run preprocess_CQ500_dataset.py
+     - optional: run reads_interrater_analysis.py to evaluate ratings
 3. Training/ testing CNN: 
-     - CNN.py
+     - run CNN.py
 4. Training/ testing RNN:
-     - LSTM.py
+     - run LSTM.py
 5. Evaluation:
-     - eval_report.py
-     - gradcam.py
+     - run eval_report.py
+     - run gradcam.py
 
 ### Hardware
 This research was undertaken using the LIEF HPC-GPGPU Facility hosted at the University of Melbourne. \
