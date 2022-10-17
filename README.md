@@ -1,6 +1,6 @@
 # CT-haemorrhage-classification
 
-Code for intracranial haemorrhage detection on CT head imaging.\
+Code for intracranial haemorrhage detection on CT head imaging.
 
 ### Files
 1. Preparing training dataset (Kaggle):
