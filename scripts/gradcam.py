@@ -21,7 +21,7 @@ from albumentations import (Cutout, Compose, Normalize, RandomRotate90, Horizont
                            )
 from albumentations.pytorch import ToTensorV2
 
-from gradcam_utils_v2 import *
+from gradcam_utils import *
 
 #############################################################################
 # Load variables and relevant files
