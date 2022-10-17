@@ -1,3 +1,7 @@
+'''
+The CNN-RNN model is based on the implementation by darraghdog (https://github.com/darraghdog/rsna).
+'''
+
 import numpy as np
 import csv, gzip, os, sys, gc
 import math
