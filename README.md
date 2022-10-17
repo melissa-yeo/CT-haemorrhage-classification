@@ -1,7 +1,6 @@
 # CT-haemorrhage-classification
 
 Code for intracranial haemorrhage detection on CT head imaging.\
-The CNN-RNN model is based on the implementation by [darraghdog](https://github.com/darraghdog/rsna).
 
 ### Files
 1. Preparing training dataset (Kaggle):
