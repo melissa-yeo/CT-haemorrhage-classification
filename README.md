@@ -24,6 +24,8 @@ This research was undertaken using the LIEF HPC-GPGPU Facility hosted at the Uni
 Two Intel Xeon E5-2650 CPUs (24 cores)
 Four NVIDIA P100 GPUs 
 
-Environment:
+Software:
 Refer to envi.yml
+Python 3.6
+PyTorch 1.4.0
 
