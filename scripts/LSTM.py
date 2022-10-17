@@ -57,7 +57,7 @@ traindataset = ''
 testdataset = 'CQ500'
 testmetadata_name = 'test_metadata.csv' if testdataset=='' else f'{testdataset}_test_metadata.csv'
 WEIGHTS_NAME = 'pytorch_model.bin'
-fold = 6
+fold = 5
 LSTM_UNITS = 128
 EMB_SIZE = 2048
 nbags = 12
