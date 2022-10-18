@@ -20,10 +20,10 @@ Code for intracranial haemorrhage detection on CT head imaging.
      - run gradcam.py
 
 ### Hardware
-This research was undertaken using the LIEF HPC-GPGPU Facility hosted at the University of Melbourne. \
-This Facility was established with the assistance of LIEF Grant LE170100200. \
 Two Intel Xeon E5-2650 CPUs (24 cores).\
-Four NVIDIA P100 GPUs.
+Four NVIDIA P100 GPUs.\
+This research was undertaken using the LIEF HPC-GPGPU Facility hosted at the University of Melbourne. \
+This Facility was established with the assistance of LIEF Grant LE170100200. 
 
 ### Software
 Refer to envi.yml\
