@@ -82,9 +82,6 @@ device = 'cuda'
 print('Data path : {}'.format(path_data))
 print('Image path : {}'.format(path_img))
 
-os.environ["TORCH_HOME"] = os.path.join(path_data, 'mount')
-
-
 
 class Identity(nn.Module):
     def __init__(self):
